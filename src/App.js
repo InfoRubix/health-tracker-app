@@ -8,15 +8,13 @@ import { Plus, Heart, Droplet, Calendar, Pill, Trash2, Edit, Save, X, Download, 
 // --- Firebase Configuration ---
 // IMPORTANT: Replace these with your own Firebase project configuration!
 // You can get this from the Firebase console: Project settings > General
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyB5wILVXCts3OF9ZQ-dlmRoRfRLBkeIYNg",
-  authDomain: "health-tracker-app-772bd.firebaseapp.com",
-  projectId: "health-tracker-app-772bd",
-  storageBucket: "health-tracker-app-772bd.firebasestorage.app",
-  messagingSenderId: "41845772913",
-  appId: "1:41845772913:web:fe34d5bee1c2b35cfe41d0",
-  measurementId: "G-J03GKV5Z5C"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 const appId = 'health-tracker-standalone'; // A unique ID for this app's data
 
@@ -1025,5 +1023,4 @@ function Footer() {
         <footer className="text-center mt-12 py-6 border-t border-gray-200 print:hidden">
             <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Health Tracker. Created with care for our loved ones.</p>
         </footer>
-    );
-}
+    )
