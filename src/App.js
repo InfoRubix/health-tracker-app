@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, Timestamp, doc, deleteDoc, updateDoc, getDocs } from 'firebase/firestore';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Plus, Heart, Droplet, Calendar, Pill, Trash2, Edit, Save, X, Download } from 'lucide-react';
+import { Plus, Heart, Droplet, Calendar, Pill, Trash2, Edit, Save, X, Download, LogOut, FileText, Printer } from 'lucide-react';
 
 // --- Firebase Configuration ---
 // IMPORTANT: Replace these with your own Firebase project configuration!
@@ -79,76 +79,117 @@ const downloadCSV = (csvString, filename) => {
 
 // --- Main App Component ---
 export default function App() {
-    const [userId, setUserId] = useState(null);
+    const [user, setUser] = useState(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
     const [activeTab, setActiveTab] = useState('dashboard');
     
     // --- Authentication Effect ---
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                setUserId(user.uid);
-            } else {
-                try {
-                     // For a real app, you would implement a proper login system
-                     // (e.g., Google, email). For now, we sign in anonymously.
-                     await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Authentication Error:", error);
-                }
-            }
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
             setIsAuthReady(true);
         });
         return () => unsubscribe();
     }, []);
 
-    const renderContent = () => {
-        if (!isAuthReady) {
-            return <div className="flex justify-center items-center h-64"><div className="text-xl font-semibold text-gray-500">Initializing Health Tracker...</div></div>;
-        }
-        switch (activeTab) {
-            case 'dashboard':
-                return <Dashboard userId={userId} setActiveTab={setActiveTab} />;
-            case 'blood_pressure':
-                return <HealthMetricTracker userId={userId} type="blood_pressure" />;
-            case 'blood_sugar':
-                return <HealthMetricTracker userId={userId} type="blood_sugar" />;
-            case 'appointments':
-                return <Appointments userId={userId} />;
-            case 'medications':
-                 return <Medications userId={userId} />;
-            case 'export':
-                return <ExportData userId={userId} />;
-            default:
-                return <Dashboard userId={userId} setActiveTab={setActiveTab} />;
+    const signInWithGoogle = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error("Error signing in with Google:", error);
         }
     };
 
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Error signing out:", error);
+        }
+    };
+
+    if (!isAuthReady) {
+        return <div className="flex justify-center items-center h-screen bg-gray-50"><div className="text-xl font-semibold text-gray-500">Loading Health Tracker...</div></div>;
+    }
+
     return (
         <div className="bg-gray-50 min-h-screen font-sans text-gray-800">
-            <div className="container mx-auto p-4 md:p-8">
-                <Header userId={userId} />
-                <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
-                <main className="mt-6">
-                    {renderContent()}
-                </main>
-                <Footer />
+            {user ? (
+                <div className="container mx-auto p-4 md:p-8">
+                    <Header user={user} handleSignOut={handleSignOut} />
+                    <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <main className="mt-6">
+                        <ContentRouter activeTab={activeTab} userId={user.uid} setActiveTab={setActiveTab} />
+                    </main>
+                    <Footer />
+                </div>
+            ) : (
+                <LoginPage onSignIn={signInWithGoogle} />
+            )}
+        </div>
+    );
+}
+
+function LoginPage({ onSignIn }) {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
+            <div className="text-center p-8 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl">
+                 <h1 className="text-5xl font-bold text-blue-600">Health Tracker</h1>
+                <p className="text-lg text-gray-600 mt-2 mb-8">Your personal health monitoring dashboard.</p>
+                <button 
+                    onClick={onSignIn} 
+                    className="flex items-center justify-center gap-3 bg-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
+                >
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" className="w-6 h-6" />
+                    <span className="text-gray-700 font-semibold">Sign in with Google</span>
+                </button>
             </div>
         </div>
     );
 }
 
+function ContentRouter({ activeTab, userId, setActiveTab }) {
+    switch (activeTab) {
+        case 'dashboard':
+            return <Dashboard userId={userId} setActiveTab={setActiveTab} />;
+        case 'blood_pressure':
+            return <HealthMetricTracker userId={userId} type="blood_pressure" />;
+        case 'blood_sugar':
+            return <HealthMetricTracker userId={userId} type="blood_sugar" />;
+        case 'appointments':
+            return <Appointments userId={userId} />;
+        case 'medications':
+             return <Medications userId={userId} />;
+        case 'export':
+            return <ExportData userId={userId} />;
+        case 'preview':
+            return <Preview userId={userId} />;
+        default:
+            return <Dashboard userId={userId} setActiveTab={setActiveTab} />;
+    }
+}
+
 
 // --- Components ---
 
-function Header({ userId }) {
+function Header({ user, handleSignOut }) {
     return (
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b-2 border-blue-100">
+        <header className="flex flex-col md:flex-row justify-between items-center mb-6 pb-4 border-b-2 border-blue-100 print:hidden">
             <div>
                 <h1 className="text-4xl font-bold text-blue-600">Health Tracker</h1>
                 <p className="text-lg text-gray-500 mt-1">Your personal health monitoring dashboard.</p>
             </div>
-            {userId && <div className="text-xs text-gray-400 mt-2 md:mt-0 bg-gray-100 p-2 rounded-lg">User ID: {userId}</div>}
+             <div className="flex items-center gap-4 mt-4 md:mt-0">
+                <div className="text-right">
+                    <p className="font-semibold">{user.displayName}</p>
+                    <p className="text-sm text-gray-500">{user.email}</p>
+                </div>
+                <img src={user.photoURL} alt="User profile" className="w-12 h-12 rounded-full border-2 border-blue-200" />
+                <button onClick={handleSignOut} className="p-2 text-gray-500 hover:text-red-600 transition-colors" title="Sign Out">
+                    <LogOut />
+                </button>
+            </div>
         </header>
     );
 }
@@ -161,10 +202,11 @@ function Navigation({ activeTab, setActiveTab }) {
         { id: 'appointments', label: 'Appointments' },
         { id: 'medications', label: 'Medications' },
         { id: 'export', label: 'Export Data' },
+        { id: 'preview', label: 'Preview' },
     ];
 
     return (
-        <nav className="bg-white rounded-xl shadow-md p-2">
+        <nav className="bg-white rounded-xl shadow-md p-2 print:hidden">
             <ul className="flex flex-wrap justify-center gap-2">
                 {navItems.map(item => (
                     <li key={item.id}>
@@ -869,9 +911,116 @@ function ExportButton({ label, onClick, isLoading }) {
     )
 }
 
+function Preview({ userId }) {
+    const [bpData, setBpData] = useState([]);
+    const [sugarData, setSugarData] = useState([]);
+    const [appointments, setAppointments] = useState([]);
+    const [medications, setMedications] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!userId) return;
+
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const metricsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/health_metrics`), orderBy('timestamp', 'desc'));
+                const metricsSnapshot = await getDocs(metricsQuery);
+                const metrics = metricsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setBpData(metrics.filter(m => m.type === 'blood_pressure'));
+                setSugarData(metrics.filter(m => m.type === 'blood_sugar'));
+
+                const appointmentsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/appointments`), orderBy('date', 'desc'));
+                const appointmentsSnapshot = await getDocs(appointmentsQuery);
+                setAppointments(appointmentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+                const medicationsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/medications`), orderBy('name', 'asc'));
+                const medicationsSnapshot = await getDocs(medicationsQuery);
+                setMedications(medicationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            } catch (error) {
+                console.error("Error fetching preview data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [userId]);
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    if (loading) {
+        return <div className="flex justify-center items-center h-64"><div className="text-xl font-semibold text-gray-500">Loading Report...</div></div>;
+    }
+
+    return (
+        <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+            <div className="flex justify-between items-center mb-8 border-b pb-4 print:hidden">
+                <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3"><FileText/> Health Report</h2>
+                <button onClick={handlePrint} className="flex items-center gap-2 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                    <Printer size={20}/> Print Report
+                </button>
+            </div>
+            
+            <div className="space-y-8">
+                <ReportSection title="Recent Blood Pressure">
+                    {bpData.length > 0 ? bpData.slice(0, 5).map(d => (
+                        <div key={d.id} className="grid grid-cols-3 gap-4 py-2 border-b">
+                            <span className="text-gray-600">{formatDate(d.timestamp)}</span>
+                            <span className="font-semibold">{d.systolic} / {d.diastolic} mmHg</span>
+                            <span className="text-gray-500 italic">{d.notes || '-'}</span>
+                        </div>
+                    )) : <p className="text-gray-500">No data.</p>}
+                </ReportSection>
+
+                <ReportSection title="Recent Blood Sugar">
+                    {sugarData.length > 0 ? sugarData.slice(0, 5).map(d => (
+                        <div key={d.id} className="grid grid-cols-3 gap-4 py-2 border-b">
+                            <span className="text-gray-600">{formatDate(d.timestamp)}</span>
+                            <span className="font-semibold">{d.level} mg/dL</span>
+                            <span className="text-gray-500 italic">{d.notes || '-'}</span>
+                        </div>
+                    )) : <p className="text-gray-500">No data.</p>}
+                </ReportSection>
+
+                <ReportSection title="Appointments">
+                     {appointments.length > 0 ? appointments.map(app => (
+                        <div key={app.id} className="grid grid-cols-3 gap-4 py-2 border-b">
+                            <span className="text-gray-600">{formatDate(app.date)}</span>
+                            <span className="font-semibold">{app.doctorName}</span>
+                            <span className="text-gray-500">{app.specialty}</span>
+                        </div>
+                    )) : <p className="text-gray-500">No appointments scheduled.</p>}
+                </ReportSection>
+
+                <ReportSection title="Medications">
+                    {medications.length > 0 ? medications.map(med => (
+                         <div key={med.id} className="grid grid-cols-2 gap-4 py-2 border-b">
+                            <span className="font-semibold">{med.name}</span>
+                            <span className="text-gray-600">{med.dosage}</span>
+                        </div>
+                    )) : <p className="text-gray-500">No medications listed.</p>}
+                </ReportSection>
+            </div>
+        </div>
+    );
+}
+
+const ReportSection = ({ title, children }) => (
+    <section>
+        <h3 className="text-xl font-bold text-gray-700 mb-3 border-b-2 border-blue-100 pb-2">{title}</h3>
+        <div className="text-sm md:text-base">
+            {children}
+        </div>
+    </section>
+);
+
+
 function Footer() {
     return (
-        <footer className="text-center mt-12 py-6 border-t border-gray-200">
+        <footer className="text-center mt-12 py-6 border-t border-gray-200 print:hidden">
             <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Health Tracker. Created with care for our loved ones.</p>
         </footer>
     );
