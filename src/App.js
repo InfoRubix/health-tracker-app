@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, Timestamp, doc, deleteDoc, updateDoc, getDocs } from 'firebase/firestore';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Plus, Heart, Droplet, Calendar, Pill, Trash2, Edit, Save, X, LogOut, FileText, Printer, AlertTriangle, Menu, LayoutDashboard, Sun, Moon, Sparkles } from 'lucide-react';
+import { Plus, Heart, Droplet, Calendar, Pill, Trash2, Edit, Save, X, LogOut, FileText, Printer, AlertTriangle, LayoutDashboard, Sun, Moon, Sparkles } from 'lucide-react';
 
 // --- Firebase Configuration ---
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -186,12 +186,16 @@ function Header({ user, handleSignOut, theme, setTheme }) {
 }
 
 function Navigation({ activeTab, setActiveTab }) {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     const navItems = [
         { id: 'dashboard', label: 'Home', icon: <LayoutDashboard size={24} /> },
         { id: 'preview', label: 'Report', icon: <FileText size={24} /> },
         { id: 'appointments', label: 'Calendar', icon: <Calendar size={24} /> },
         { id: 'medications', label: 'Meds', icon: <Pill size={24} /> },
     ];
+
+    const activeLabel = navItems.find(item => item.id === activeTab)?.label;
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.4)] print:hidden md:relative md:bg-transparent md:shadow-none md:mt-8">
