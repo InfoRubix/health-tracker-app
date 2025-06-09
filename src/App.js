@@ -3,18 +3,18 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, Timestamp, doc, deleteDoc, updateDoc, getDocs } from 'firebase/firestore';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Plus, Heart, Droplet, Calendar, Pill, Trash2, Edit, Save, X, Download, LogOut, FileText, Printer } from 'lucide-react';
+import { Plus, Heart, Droplet, Calendar, Pill, Trash2, Edit, Save, X, Download, LogOut, FileText, Printer, AlertTriangle } from 'lucide-react';
 
 // --- Firebase Configuration ---
-// IMPORTANT: Replace these with your own Firebase project configuration!
-// You can get this from the Firebase console: Project settings > General
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyB5wILVXCts3OF9ZQ-dlmRoRfRLBkeIYNg",
+  authDomain: "health-tracker-app-772bd.firebaseapp.com",
+  projectId: "health-tracker-app-772bd",
+  storageBucket: "health-tracker-app-772bd.appspot.com",
+  messagingSenderId: "41845772913",
+  appId: "1:41845772913:web:fe34d5bee1c2b35cfe41d0",
+  measurementId: "G-J03GKV5Z5C"
 };
 const appId = 'health-tracker-standalone'; // A unique ID for this app's data
 
@@ -133,13 +133,13 @@ export default function App() {
 
 function LoginPage({ onSignIn }) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
-            <div className="text-center p-8 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl">
-                 <h1 className="text-5xl font-bold text-blue-600">Health Tracker</h1>
-                <p className="text-lg text-gray-600 mt-2 mb-8">Your personal health monitoring dashboard.</p>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 p-4">
+            <div className="text-center p-8 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl max-w-md w-full">
+                 <h1 className="text-4xl md:text-5xl font-bold text-blue-600">Health Tracker</h1>
+                <p className="text-md md:text-lg text-gray-600 mt-2 mb-8">Your personal health monitoring dashboard.</p>
                 <button 
                     onClick={onSignIn} 
-                    className="flex items-center justify-center gap-3 bg-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
+                    className="flex items-center justify-center gap-3 bg-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 w-full"
                 >
                     <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" className="w-6 h-6" />
                     <span className="text-gray-700 font-semibold">Sign in with Google</span>
@@ -176,12 +176,12 @@ function ContentRouter({ activeTab, userId, setActiveTab }) {
 function Header({ user, handleSignOut }) {
     return (
         <header className="flex flex-col md:flex-row justify-between items-center mb-6 pb-4 border-b-2 border-blue-100 print:hidden">
-            <div>
-                <h1 className="text-4xl font-bold text-blue-600">Health Tracker</h1>
-                <p className="text-lg text-gray-500 mt-1">Your personal health monitoring dashboard.</p>
+            <div className="text-center md:text-left">
+                <h1 className="text-3xl md:text-4xl font-bold text-blue-600">Health Tracker</h1>
+                <p className="text-md md:text-lg text-gray-500 mt-1">Your personal health dashboard.</p>
             </div>
-             <div className="flex items-center gap-4 mt-4 md:mt-0">
-                <div className="text-right">
+             <div className="flex items-center gap-3 mt-4 md:mt-0">
+                <div className="text-right hidden sm:block">
                     <p className="font-semibold">{user.displayName}</p>
                     <p className="text-sm text-gray-500">{user.email}</p>
                 </div>
@@ -212,7 +212,7 @@ function Navigation({ activeTab, setActiveTab }) {
                     <li key={item.id}>
                         <button
                             onClick={() => setActiveTab(item.id)}
-                            className={`px-4 py-2 text-sm md:text-base font-semibold rounded-lg transition-colors duration-200 ${
+                            className={`w-full sm:w-auto px-3 py-2 text-sm md:text-base font-semibold rounded-lg transition-colors duration-200 ${
                                 activeTab === item.id 
                                 ? 'bg-blue-600 text-white shadow-lg' 
                                 : 'text-gray-600 hover:bg-blue-100 hover:text-blue-700'
@@ -288,12 +288,12 @@ function Dashboard({ userId, setActiveTab }) {
                 {appointments.length > 0 ? (
                     <ul className="space-y-3">
                         {appointments.slice(0, 3).map(app => (
-                            <li key={app.id} className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-                                <div>
+                            <li key={app.id} className="p-3 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                                <div className="mb-2 sm:mb-0">
                                     <p className="font-semibold">{app.doctorName}</p>
                                     <p className="text-sm text-gray-500">{app.specialty}</p>
                                 </div>
-                                <p className="font-semibold text-purple-600">{formatDate(app.date)}</p>
+                                <p className="font-semibold text-purple-600 text-sm sm:text-base">{formatDate(app.date)}</p>
                             </li>
                         ))}
                     </ul>
@@ -311,13 +311,13 @@ function SummaryCard({ icon, title, value, unit, timestamp, onClick }) {
         <div onClick={onClick} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col justify-between">
             <div>
                 <div className="flex items-start justify-between">
-                    <h3 className="text-xl font-bold text-gray-700">{title}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-gray-700">{title}</h3>
                     {icon}
                 </div>
-                <p className="text-5xl font-bold text-blue-600 mt-4">{value}</p>
-                <p className="text-lg text-gray-500">{unit}</p>
+                <p className="text-4xl md:text-5xl font-bold text-blue-600 mt-4">{value}</p>
+                <p className="text-md md:text-lg text-gray-500">{unit}</p>
             </div>
-            <p className="text-sm text-gray-400 mt-4">Last updated: {formatDate(timestamp)}</p>
+            <p className="text-xs md:text-sm text-gray-400 mt-4">Last updated: {formatDate(timestamp)}</p>
         </div>
     );
 }
@@ -329,6 +329,7 @@ function HealthMetricTracker({ userId, type }) {
     const [level, setLevel] = useState('');
     const [notes, setNotes] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(null);
 
     const config = useMemo(() => ({
         blood_pressure: {
@@ -372,16 +373,16 @@ function HealthMetricTracker({ userId, type }) {
         };
         
         if (type === 'blood_pressure') {
-            if (!systolic || !diastolic) {
-                 alert("Please enter both Systolic and Diastolic values.");
+            if (!systolic || !diastolic || Number(systolic) <= 0 || Number(diastolic) <= 0) {
+                 alert("Please enter valid Systolic and Diastolic values.");
                  setIsLoading(false);
                  return;
             }
             newMetric.systolic = Number(systolic);
             newMetric.diastolic = Number(diastolic);
         } else {
-            if (!level) {
-                 alert("Please enter blood sugar level.");
+            if (!level || Number(level) <= 0) {
+                 alert("Please enter a valid blood sugar level.");
                  setIsLoading(false);
                  return;
             }
@@ -396,19 +397,18 @@ function HealthMetricTracker({ userId, type }) {
             setNotes('');
         } catch (error) {
             console.error("Error adding document: ", error);
-            alert("Failed to save data. Please try again.");
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleDeleteMetric = async (id) => {
-        if (!userId || !window.confirm("Are you sure you want to delete this entry?")) return;
+        if (!userId) return;
         try {
             await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/health_metrics`, id));
+            setConfirmDelete(null);
         } catch (error) {
             console.error("Error deleting document: ", error);
-            alert("Failed to delete entry. Please try again.");
         }
     };
 
@@ -419,34 +419,44 @@ function HealthMetricTracker({ userId, type }) {
 
     return (
         <div className="space-y-6">
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-                <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-3">{icon} {title} Tracker</h2>
-                <form onSubmit={handleAddMetric} className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            {confirmDelete && (
+                <ConfirmationModal
+                    title="Delete Reading"
+                    message="Are you sure you want to delete this health reading? This action cannot be undone."
+                    onConfirm={() => handleDeleteMetric(confirmDelete)}
+                    onCancel={() => setConfirmDelete(null)}
+                />
+            )}
+            <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-3">{icon} {title} Tracker</h2>
+                <form onSubmit={handleAddMetric} className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                     {type === 'blood_pressure' ? (
                         <>
                             <Input label="Systolic (SYS)" value={systolic} onChange={e => setSystolic(e.target.value)} placeholder="e.g., 120" type="number" required />
                             <Input label="Diastolic (DIA)" value={diastolic} onChange={e => setDiastolic(e.target.value)} placeholder="e.g., 80" type="number" required />
                         </>
                     ) : (
-                        <Input label={`Level (${unit})`} value={level} onChange={e => setLevel(e.target.value)} placeholder="e.g., 100" type="number" required />
+                        <div className="sm:col-span-2 lg:col-span-1">
+                            <Input label={`Level (${unit})`} value={level} onChange={e => setLevel(e.target.value)} placeholder="e.g., 100" type="number" required />
+                        </div>
                     )}
-                    <div className="lg:col-span-2">
+                    <div className="sm:col-span-2 lg:col-span-1">
                       <Input label="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} placeholder="e.g., After lunch" />
                     </div>
-                    <button type="submit" disabled={isLoading} className="w-full lg:w-auto justify-center bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:bg-blue-300">
+                    <button type="submit" disabled={isLoading} className="w-full justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:bg-blue-300">
                         <Plus size={20} /> {isLoading ? 'Saving...' : 'Add Reading'}
                     </button>
                 </form>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-                <h3 className="text-xl font-bold text-gray-700 mb-4">{title} Trends</h3>
+            <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg md:text-xl font-bold text-gray-700 mb-4">{title} Trends</h3>
                 <div style={{ width: '100%', height: 300 }}>
                     <ResponsiveContainer>
-                        <LineChart data={chartData} margin={{ top: 5, right: 30, left: -10, bottom: 5 }}>
+                        <LineChart data={chartData} margin={{ top: 5, right: 20, left: -15, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis />
+                            <XAxis dataKey="name" fontSize={12} />
+                            <YAxis fontSize={12} />
                             <Tooltip content={<CustomTooltip unit={unit} type={type} />} />
                             <Legend />
                             {type === 'blood_pressure' ? (
@@ -462,12 +472,34 @@ function HealthMetricTracker({ userId, type }) {
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-                <h3 className="text-xl font-bold text-gray-700 mb-4">History</h3>
-                <div className="overflow-x-auto">
+            <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg md:text-xl font-bold text-gray-700 mb-4">History</h3>
+                {/* Mobile View */}
+                <div className="md:hidden space-y-3">
+                    {data.slice().reverse().map(d => (
+                         <div key={d.id} className="bg-gray-50 p-3 rounded-lg border-l-4 border-blue-400">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    {type === 'blood_pressure' ? (
+                                        <p className="font-bold text-lg">{d.systolic} / {d.diastolic} <span className="text-sm font-normal text-gray-500">{unit}</span></p>
+                                    ) : (
+                                        <p className="font-bold text-lg">{d.level} <span className="text-sm font-normal text-gray-500">{unit}</span></p>
+                                    )}
+                                    <p className="text-xs text-gray-500">{formatDate(d.timestamp)}</p>
+                                </div>
+                                <button onClick={() => setConfirmDelete(d.id)} className="p-2 text-gray-400 hover:text-red-600">
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                            {d.notes && <p className="text-sm text-gray-600 mt-2 pt-2 border-t border-gray-200 italic">"{d.notes}"</p>}
+                        </div>
+                    ))}
+                </div>
+                 {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="border-b-2 border-gray-200">
-                            <tr>
+                        <thead>
+                            <tr className="border-b-2 border-gray-200">
                                 <th className="p-3 text-sm font-semibold tracking-wide">Date</th>
                                 {type === 'blood_pressure' ? (
                                     <>
@@ -495,7 +527,7 @@ function HealthMetricTracker({ userId, type }) {
                                     )}
                                     <td className="p-3 text-sm text-gray-500 italic">{d.notes || '-'}</td>
                                     <td className="p-3">
-                                        <button onClick={() => handleDeleteMetric(d.id)} className="text-red-500 hover:text-red-700">
+                                        <button onClick={() => setConfirmDelete(d.id)} className="text-red-500 hover:text-red-700">
                                             <Trash2 size={18} />
                                         </button>
                                     </td>
@@ -545,6 +577,7 @@ function CustomTooltip({ active, payload, label, unit, type }) {
 function Appointments({ userId }) {
     const [appointments, setAppointments] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(null);
 
     useEffect(() => {
         if (!userId) return;
@@ -566,26 +599,34 @@ function Appointments({ userId }) {
     };
     
     const handleDeleteAppointment = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this appointment?")) return;
         try {
              await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/appointments`, id));
+             setConfirmDelete(null);
         } catch (error) {
             console.error("Error deleting appointment: ", error);
         }
     };
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-3"><Calendar className="text-purple-500"/>Appointments</h2>
-                <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+        <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+            {confirmDelete && (
+                <ConfirmationModal
+                    title="Delete Appointment"
+                    message="Are you sure you want to delete this appointment?"
+                    onConfirm={() => handleDeleteAppointment(confirmDelete)}
+                    onCancel={() => setConfirmDelete(null)}
+                />
+            )}
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-3 mb-3 sm:mb-0"><Calendar className="text-purple-500"/>Appointments</h2>
+                <button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
                     <Plus size={20} /> Add New
                 </button>
             </div>
 
             <div className="space-y-4">
                  {appointments.length > 0 ? appointments.map(app => (
-                    <AppointmentCard key={app.id} appointment={app} onDelete={handleDeleteAppointment}/>
+                    <AppointmentCard key={app.id} appointment={app} onDelete={() => setConfirmDelete(app.id)}/>
                 )) : <p className="text-center text-gray-500 py-8">No appointments scheduled.</p>}
             </div>
 
@@ -619,7 +660,7 @@ function AppointmentCard({ appointment, onDelete }) {
                     {notes && <p className="text-sm text-gray-600 mt-2 italic">Notes: {notes}</p>}
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                     <button onClick={() => onDelete(id)} className="text-gray-400 hover:text-red-600 transition-colors p-1">
+                     <button onClick={onDelete} className="text-gray-400 hover:text-red-600 transition-colors p-1">
                         <Trash2 size={18} />
                     </button>
                     {!isPast && (
@@ -662,27 +703,24 @@ function AppointmentModal({ onClose, onSave }) {
     };
     
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-                <h3 className="text-xl font-bold mb-4">New Appointment</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <Input label="Doctor's Name" value={doctorName} onChange={e => setDoctorName(e.target.value)} required/>
-                    <Input label="Specialty" value={specialty} onChange={e => setSpecialty(e.target.value)} required/>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input label="Date" type="date" value={date} onChange={e => setDate(e.target.value)} required/>
-                      <Input label="Time" type="time" value={time} onChange={e => setTime(e.target.value)} required/>
-                    </div>
-                    <div>
-                         <label className="block text-sm font-medium text-gray-600 mb-1">Notes</label>
-                         <textarea value={notes} onChange={e => setNotes(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow" rows="3"></textarea>
-                    </div>
-                    <div className="flex justify-end gap-3 mt-6">
-                        <button type="button" onClick={onClose} className="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button type="submit" className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Save Appointment</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+       <Modal title="New Appointment" onClose={onClose}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <Input label="Doctor's Name" value={doctorName} onChange={e => setDoctorName(e.target.value)} required/>
+                <Input label="Specialty" value={specialty} onChange={e => setSpecialty(e.target.value)} required/>
+                <div className="grid grid-cols-2 gap-4">
+                  <Input label="Date" type="date" value={date} onChange={e => setDate(e.target.value)} required/>
+                  <Input label="Time" type="time" value={time} onChange={e => setTime(e.target.value)} required/>
+                </div>
+                <div>
+                     <label className="block text-sm font-medium text-gray-600 mb-1">Notes</label>
+                     <textarea value={notes} onChange={e => setNotes(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow" rows="3"></textarea>
+                </div>
+                <div className="flex justify-end gap-3 mt-6">
+                    <button type="button" onClick={onClose} className="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Save Appointment</button>
+                </div>
+            </form>
+       </Modal>
     );
 }
 
@@ -693,6 +731,7 @@ function Medications({ userId }) {
     const [editingId, setEditingId] = useState(null);
     const [editingName, setEditingName] = useState('');
     const [editingDosage, setEditingDosage] = useState('');
+    const [confirmDelete, setConfirmDelete] = useState(null);
 
     useEffect(() => {
         if (!userId) return;
@@ -720,9 +759,9 @@ function Medications({ userId }) {
     };
 
     const handleDeleteMed = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this medication?")) return;
         try {
             await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/medications`, id));
+            setConfirmDelete(null);
         } catch (error) {
             console.error("Error deleting medication:", error);
         }
@@ -750,8 +789,16 @@ function Medications({ userId }) {
     };
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-3 mb-4"><Pill className="text-green-500"/>Medication List</h2>
+        <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+            {confirmDelete && (
+                <ConfirmationModal
+                    title="Delete Medication"
+                    message="Are you sure you want to delete this medication?"
+                    onConfirm={() => handleDeleteMed(confirmDelete)}
+                    onCancel={() => setConfirmDelete(null)}
+                />
+            )}
+            <h2 className="text-xl md:text-2xl font-bold text-gray-700 flex items-center gap-3 mb-4"><Pill className="text-green-500"/>Medication List</h2>
             <form onSubmit={handleAddMed} className="flex flex-col sm:flex-row gap-3 mb-6 items-end">
                 <Input label="Medication Name" value={newMedName} onChange={e => setNewMedName(e.target.value)} placeholder="e.g., Metformin" required/>
                 <Input label="Dosage" value={newMedDosage} onChange={e => setNewMedDosage(e.target.value)} placeholder="e.g., 500mg, twice a day"/>
@@ -783,7 +830,7 @@ function Medications({ userId }) {
                             ) : (
                                 <>
                                     <button onClick={() => startEditing(med)} className="p-2 text-blue-600 hover:text-blue-800"><Edit size={18}/></button>
-                                    <button onClick={() => handleDeleteMed(med.id)} className="p-2 text-red-500 hover:text-red-700"><Trash2 size={18}/></button>
+                                    <button onClick={() => setConfirmDelete(med.id)} className="p-2 text-red-500 hover:text-red-700"><Trash2 size={18}/></button>
                                 </>
                             )}
                         </div>
@@ -838,7 +885,7 @@ function ExportData({ userId }) {
             <p className="text-gray-600 mb-6">
                 Download your health data as CSV files. You can open these files with Google Sheets, Microsoft Excel, or other spreadsheet programs.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                 <ExportButton
                     label="Blood Pressure"
                     isLoading={isLoading}
@@ -906,7 +953,7 @@ function ExportButton({ label, onClick, isLoading }) {
             className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-300 disabled:cursor-not-allowed"
         >
             <Download size={18}/>
-            {isLoading ? 'Exporting...' : `Export ${label}`}
+            {isLoading ? `Exporting...` : `Export ${label}`}
         </button>
     )
 }
@@ -1023,4 +1070,71 @@ function Footer() {
         <footer className="text-center mt-12 py-6 border-t border-gray-200 print:hidden">
             <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Health Tracker. Created with care for our loved ones.</p>
         </footer>
-    )
+    );
+}
+
+// --- Reusable Modal Components ---
+
+function Modal({ title, onClose, children }) {
+    // Effect to handle 'Escape' key press
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [onClose]);
+
+    return (
+        <div 
+            className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4"
+            onClick={onClose} // Close on backdrop click
+        >
+            <div 
+                className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md"
+                onClick={e => e.stopPropagation()} // Prevent click inside modal from closing it
+            >
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold">{title}</h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                        <X size={24} />
+                    </button>
+                </div>
+                <div>{children}</div>
+            </div>
+        </div>
+    );
+}
+
+function ConfirmationModal({ title, message, onConfirm, onCancel }) {
+    return (
+        <Modal title={title} onClose={onCancel}>
+            <div className="text-center">
+                <div className="flex justify-center mb-4">
+                     <div className="bg-red-100 rounded-full p-3">
+                        <AlertTriangle className="text-red-600" size={32} />
+                    </div>
+                </div>
+                <p className="text-gray-600 mb-6">{message}</p>
+                <div className="flex justify-center gap-4">
+                    <button 
+                        onClick={onCancel} 
+                        className="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={onConfirm}
+                        className="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    );
+}
