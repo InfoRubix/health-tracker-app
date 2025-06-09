@@ -11,8 +11,17 @@
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- NEW: Tailwind CSS Configuration for Night Mode -->
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
+    
     <title>Health Tracker</title>
   </head>
   <body>
@@ -20,4 +29,3 @@
     <div id="root"></div>
   </body>
 </html>
-*/
