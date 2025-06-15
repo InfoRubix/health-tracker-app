@@ -304,6 +304,10 @@ function GeminiAdvice({ latestBp, latestSugar }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // --- IMPORTANT: ADD YOUR GEMINI API KEY HERE ---
+    // You can get a key from Google AI Studio: https://aistudio.google.com/
+    const GEMINI_API_KEY = "AIzaSyA--gCOyJgOHOaYUHsKRTfglW3VyjcvRws"; // <-- PASTE YOUR KEY HERE
+
     const getAdvice = async () => {
         setIsLoading(true);
         setError('');
@@ -324,8 +328,7 @@ function GeminiAdvice({ latestBp, latestSugar }) {
         try {
             const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
             const payload = { contents: chatHistory };
-            const apiKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -334,7 +337,8 @@ function GeminiAdvice({ latestBp, latestSugar }) {
             });
 
             if (!response.ok) {
-                 throw new Error(`API request failed with status ${response.status}`);
+                 const errorBody = await response.json();
+                 throw new Error(`API request failed with status ${response.status}: ${errorBody.error.message}`);
             }
 
             const result = await response.json();
@@ -348,7 +352,7 @@ function GeminiAdvice({ latestBp, latestSugar }) {
 
         } catch (e) {
             console.error("Error fetching advice:", e);
-            setError("Sorry, I couldn't get health advice at this moment. Please try again later.");
+            setError(`Sorry, I couldn't get health advice: ${e.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -373,14 +377,18 @@ function GeminiAdvice({ latestBp, latestSugar }) {
             ) : advice ? (
                  <div className="prose prose-invert mt-4 text-sm" dangerouslySetInnerHTML={{ __html: advice.replace(/\n/g, '<br />') }} />
             ) : error ? (
-                <p className="mt-4 text-red-300">{error}</p>
+                <p className="mt-4 text-red-300 bg-red-900/50 p-3 rounded-lg">{error}</p>
             ) : (
-                 <button 
-                    onClick={getAdvice} 
-                    className="mt-4 w-full bg-white/90 text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-white transition-colors"
-                >
-                    Get Health Advice
-                </button>
+                <>
+                    <button 
+                        onClick={getAdvice} 
+                        className="mt-4 w-full bg-white/90 text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-white transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled={!GEMINI_API_KEY}
+                    >
+                        Get Health Advice
+                    </button>
+                    {!GEMINI_API_KEY && <p className="text-xs text-center mt-2 text-yellow-300">Note: AI Assistant requires an API key to be added to the code.</p>}
+                </>
             )}
         </div>
     );
